@@ -1,0 +1,32 @@
+### Hello world
+GET http://localhost:8080/api
+
+### Get all users
+GET http://localhost:8080/api/user
+
+### Get user by id
+GET http://localhost:8080/api/user/1
+
+### Create new user
+POST http://localhost:8080/api/user
+Content-Type: application/json
+
+{
+  "email": "cesar.melendezp96.dev@gmail.com",
+  "username": "Mlndz19",
+  "password": "ElChechal123"
+}
+
+### Update user by id
+PUT http://localhost:8080/api/user/1
+Content-Type: application/json
+
+{
+  "email": "cesar.melendezp96.dev@gmail.com",
+  "username": "Mlndz19",
+  "password": "MyPwd1996",
+  "active": true
+}
+
+### Delete user by id
+DELETE http://localhost:8080/api/user/4
