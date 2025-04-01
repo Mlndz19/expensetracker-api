@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"expensetrack/main.go/config"
 	"expensetrack/main.go/routes"
 
 	"github.com/gin-gonic/gin"
@@ -18,9 +19,12 @@ func main(){
 	if err != nil {
 		log.Fatal("Error al cargar el archivo .env: ", err.Error())
 	}
+	
+	config.ConnectDB()
 
 	r := gin.Default()
 	routes.RegisterUsersRoutes(r);
+
 
 	r.GET("api/", func(c *gin.Context){
 		c.JSON(http.StatusOK, gin.H{"message": "Hello World!"})

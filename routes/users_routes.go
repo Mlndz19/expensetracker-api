@@ -1,50 +1,133 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
-	"time"
+
+	"expensetrack/main.go/config"
+	"expensetrack/main.go/models"
+	utils "expensetrack/main.go/utils/crypto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-type User struct {
-	Id       int       `json:"id"`
-	Guid     string    `json:"guid"`
-	Created  time.Time `json:"created"`
-	Email    string    `json:"email" binding:"required,email"`
-	Username string    `json:"username" binding:"required,min=5,max=25"`
-	Password string    `json:"password" binding:"required"`
-	Active   bool      `json:"active"`
-}
-
-var users = []User{
-	{Id: 1, Guid: "550e8400-e29b-41d4-a716-446655440000", Created: time.Now(), Email: "user1@example.com", Username: "user1", Password: "pass1", Active: true},
-	{Id: 2, Guid: "550e8400-e29b-41d4-a716-446655440001", Created: time.Now(), Email: "user2@example.com", Username: "user2", Password: "pass2", Active: false},
-	{Id: 3, Guid: "550e8400-e29b-41d4-a716-446655440002", Created: time.Now(), Email: "user3@example.com", Username: "user3", Password: "pass3", Active: true},
-	{Id: 4, Guid: "550e8400-e29b-41d4-a716-446655440003", Created: time.Now(), Email: "user4@example.com", Username: "user4", Password: "pass4", Active: false},
-	{Id: 5, Guid: "550e8400-e29b-41d4-a716-446655440004", Created: time.Now(), Email: "user5@example.com", Username: "user5", Password: "pass5", Active: true},
-}
-
 func RegisterUsersRoutes(r *gin.Engine) {
 	r.GET("api/user", getAllUsers)
-	r.GET("api/user/:id", getPersonById)
+	r.GET("api/user/:id", getUserById)
 	r.POST("api/user", createUser)
-	r.PUT("api/user/:id", updateUser)
-	r.DELETE("api/user/:id", deleteUser)
+	r.PUT("api/user/:id", updateUserById)
+	r.DELETE("api/user/:id", deleteUserById)
 }
 
-func getAllUsers(c *gin.Context){
-	if len(users) == 0 {
-		c.JSON(http.StatusOK, gin.H{"users": []User{}})
+func getAllUsers(c *gin.Context) {
+	if config.DB == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection is not initialized"})
+		return
+	}
+
+	var users []models.User
+
+	fmt.Println("Test")
+	if err := config.DB.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener los usuarios"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
-func getPersonById(c *gin.Context) {
+func getUserById(c *gin.Context){
+	id := c.Param("id")
+	var user models.User
+
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func createUser(c *gin.Context){
+	var newUSer models.User
+
+	if err := c.ShouldBindJSON(&newUSer); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(newUSer.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	newUSer.Guid = uuid.NewString()
+	newUSer.Password = hashedPassword
+
+	if err := config.DB.Create(&newUSer).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "User created correctly",
+		"user": newUSer,
+	})
+}
+
+func updateUserById(c *gin.Context){
+	id := c.Param("id")
+	var user models.User
+
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Password = hashedPassword
+
+	if err := config.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User updated correctly",
+		"user": user,
+	})
+}
+
+func deleteUserById(c *gin.Context){
+	id := c.Param("id")
+	var user models.User
+
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil{
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	if err := config.DB.Delete(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted correctly"})
+}
+
+/* func getPersonById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 
@@ -53,7 +136,7 @@ func getPersonById(c *gin.Context) {
 		return
 	}
 
-	var userToFind *User
+	var userToFind *models.User
 	for i := range users {
 		if users[i].Id == id {
 			userToFind = &users[i]
@@ -69,7 +152,7 @@ func getPersonById(c *gin.Context) {
 }
 
 func createUser(c *gin.Context){
-	var newUser *User
+	var newUser *models.User
 	if err := c.ShouldBindJSON(&newUser); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -96,8 +179,8 @@ func updateUser(c *gin.Context){
 		return
 	}
 
-	var userToUpdate *User
-	var userBody *User
+	var userToUpdate *models.User
+	var userBody *models.User
 
 	for i := range users {
 		if users[i].Id == id {
@@ -135,7 +218,7 @@ func deleteUser(c *gin.Context){
 		return
 	}
 
-	var userToDelete *User
+	var userToDelete *models.User
 	for i := range users {
 		if users[i].Id == id {
 			userToDelete = &users[i]
@@ -147,7 +230,7 @@ func deleteUser(c *gin.Context){
 		return
 	}
 
-	var newUsers []User
+	var newUsers []models.User
 	for _, user := range users {
 		if user.Id != userToDelete.Id {
 			newUsers = append(newUsers, user)
@@ -157,4 +240,4 @@ func deleteUser(c *gin.Context){
 	users = newUsers
 
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted correctly"})
-}
+} */
