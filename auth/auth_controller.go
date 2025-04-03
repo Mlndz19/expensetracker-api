@@ -2,27 +2,28 @@ package auth
 
 import (
 	"expensetrack/main.go/config"
+	"expensetrack/main.go/dtos"
 	"expensetrack/main.go/models"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func LoginUser(c *gin.Context) {
-	var loginData *models.LoginModel
+	var loginData dtos.LoginModel
 
 	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	var user *models.User
-	if err := config.DB.Where("email = ?", loginData.Email).Find(&user); err != nil {
+	var user models.User
+	if err := config.DB.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales inválidas"})
 		return
 	}
 
-	if !CheckPassword(loginData.Password, user.Password) {
+	if !CheckPassword(user.Password, loginData.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Credenciales inválidas"})
 		return
 	}
@@ -45,7 +46,6 @@ func RegisterUser(c *gin.Context){
 		return
 	}
 
-	newUSer.Guid = uuid.NewString()
 	newUSer.Password = hashedPassword
 
 	if err := config.DB.Create(&newUSer).Error; err != nil {
