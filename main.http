@@ -1,23 +1,17 @@
 ### Hello world
+# @name HelloWorld
 GET http://localhost:8080/api
 
 ### Get all users
+# @name GetAllUsers
 GET http://localhost:8080/api/user
 
 ### Get user by id
+# @name GetUserById
 GET http://localhost:8080/api/user/1
 
-### Create new user
-POST http://localhost:8080/api/user
-Content-Type: application/json
-
-{
-  "email": "example@example.com",
-  "username": "Mlndz19",
-  "password": "ElChechal123"
-}
-
 ### Update user by id
+# @name UpdateUser
 PUT http://localhost:8080/api/user/1
 Content-Type: application/json
 
@@ -29,4 +23,26 @@ Content-Type: application/json
 }
 
 ### Delete user by id
+# @name DeleteUser
 DELETE http://localhost:8080/api/user/1
+
+### Login
+# @name Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cesar.melendezp96.dev@gmail.com",
+  "password": "MyPwd1996"
+}
+
+### Create new user
+# @name RegisterUser
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "example@example.com",
+  "username": "Mlndz19",
+  "password": "ElChechal123"
+}
