@@ -10,11 +10,6 @@ import (
 )
 
 func GetAllUsers(c *gin.Context) {
-	if config.DB == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection is not initialized"})
-		return
-	}
-
 	var users []models.User
 
 	if err := config.DB.Find(&users).Error; err != nil {
