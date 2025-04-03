@@ -29,6 +29,13 @@ func ConnectDB() {
 		log.Fatal("❌ Error al conectar con la base de datos: ", err.Error())
 	}
 
+	MigrateDB()
+
+	fmt.Println("✔ Conexión exitosa a postgres")
+}
+
+func MigrateDB(){
+	var err error
 	err = DB.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatal("❌ Error al migrar la tabla User: ", err.Error())
@@ -36,5 +43,19 @@ func ConnectDB() {
 		fmt.Println("✔ Migración de la tabla User completada")
 	}
 
-	fmt.Println("✔ Conexión exitosa a postgres")
+	DB.Exec(`
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = 'check_card_based_on_payment_method'
+        ) THEN
+            ALTER TABLE transactions
+            ADD CONSTRAINT check_card_based_on_payment_method
+            CHECK (
+                (payment_method_id = 1 AND card_id IS NULL) OR
+                (payment_method_id != 1 AND card_id IS NOT NULL)
+            );
+        END IF;
+    END$$;
+	`)
 }
