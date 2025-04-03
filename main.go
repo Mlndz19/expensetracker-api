@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"expensetrack/main.go/config"
@@ -23,12 +22,12 @@ func main(){
 	config.ConnectDB()
 
 	r := gin.Default()
-	routes.RegisterUsersRoutes(r);
 
-
-	r.GET("api/", func(c *gin.Context){
-		c.JSON(http.StatusOK, gin.H{"message": "Hello World!"})
-	})
+	api := r.Group("/api")
+	{
+		routes.UsersRoutes(api)
+		routes.AuthRoutes(api)
+	}
 
 	SERVER_PORT := os.Getenv("SERVER_PORT")
 	port := fmt.Sprintf(":%s", SERVER_PORT)
