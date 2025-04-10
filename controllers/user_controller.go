@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// TODO: Retornar usuario sin contraseña
 func GetAllUsers(c *gin.Context) {
 	var users []models.User
 
@@ -23,6 +24,7 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"users": users})
 }
 
+// TODO: Retornar usuario sin contraseña
 func GetUserById(c *gin.Context){
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
