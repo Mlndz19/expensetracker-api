@@ -19,7 +19,7 @@ func LoginUser(c *gin.Context) {
 
 	var user models.User
 	if err := config.DB.Where("email = ?", loginData.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales inválidas"})
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Credenciales inválidas"})
 		return
 	}
 
@@ -28,7 +28,16 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Login correcto"})
+	token, err := GenerateSignedToken(user.ID)
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login correcto",
+		"token": token,
+	})
 
 }
 
