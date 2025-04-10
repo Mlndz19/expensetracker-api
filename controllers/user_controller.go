@@ -5,6 +5,9 @@ import (
 	"expensetrack/main.go/config"
 	"expensetrack/main.go/models"
 	"net/http"
+	"strconv"
+
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,33 +24,47 @@ func GetAllUsers(c *gin.Context) {
 }
 
 func GetUserById(c *gin.Context){
-	id := c.Param("id")
-	var user *models.User
-
-	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
+	
+	var user models.User
 
-	if user == nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+	if err := config.DB.First(&user, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound{
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
+// TODO: Revisar que campos vienen vacíos y manejarlos (como la contraseña)
 func UpdateUserById(c *gin.Context){
-	id := c.Param("id")
-	var user models.User
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
 
-	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+	if err != nil{
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
+	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := config.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
@@ -59,7 +76,7 @@ func UpdateUserById(c *gin.Context){
 
 	user.Password = hashedPassword
 
-	if err := config.DB.Save(&user).Error; err != nil {
+	if err := config.DB.Model(&user).Updates(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -71,10 +88,16 @@ func UpdateUserById(c *gin.Context){
 }
 
 func DeleteUserById(c *gin.Context){
-	id := c.Param("id")
-	var user models.User
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
 
-	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil{
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var user models.User
+	if err := config.DB.First(&user, id).Error; err != nil{
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
