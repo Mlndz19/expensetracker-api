@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
   "email": "cesar.melendezp96.dev@gmail.com",
-  "password": "MyPwd1996"
+  "password": "ElChechal123"
 }
 
 ### Create new user
@@ -42,7 +42,24 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-  "email": "example@example.com",
+  "email": "cesar.melendezp96.dev@gmail.com",
   "username": "Mlndz19",
   "password": "ElChechal123"
+}
+
+### Get All banks
+# @name GetAllBanks
+GET http://localhost:8080/api/bank
+
+### Get bank by Id
+# @name GetBankById
+GET http://localhost:8080/api/bank/1
+
+### Create Bank
+# @name CreateBank
+POST http://localhost:8080/api/bank
+Content-Type: application/json
+
+{
+  "name": "Santander"
 }
