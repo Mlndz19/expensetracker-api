@@ -27,6 +27,7 @@ func main(){
 	{
 		routes.UsersRoutes(api)
 		routes.AuthRoutes(api)
+		routes.BankRoutes(api)
 	}
 
 	SERVER_PORT := os.Getenv("SERVER_PORT")
