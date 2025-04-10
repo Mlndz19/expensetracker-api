@@ -30,6 +30,7 @@ func ConnectDB() {
 	}
 
 	MigrateDB()
+	SeedPaymentMethods()
 
 	fmt.Println("✔ Conexión exitosa a postgres")
 }
