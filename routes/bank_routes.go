@@ -12,5 +12,7 @@ func BankRoutes(r *gin.RouterGroup) {
 		userGroup.GET("/", controllers.GetAllBanks)
 		userGroup.GET("/:id", controllers.GetBankById)
 		userGroup.POST("/", controllers.CreateBank)
+		userGroup.PUT("/:id", controllers.UpdateBankById)
+		userGroup.DELETE("/:id", controllers.DeleteBankById)
 	}
 }
