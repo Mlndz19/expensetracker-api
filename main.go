@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"expensetrack/main.go/auth"
 	"expensetrack/main.go/config"
 	"expensetrack/main.go/routes"
 
@@ -24,11 +25,14 @@ func main(){
 	r := gin.Default()
 
 	api := r.Group("/api")
+	routes.AuthRoutes(api)
+
+	protected := api.Group("/")
+	protected.Use(auth.JWTMiddleware())
 	{
-		routes.UsersRoutes(api)
-		routes.AuthRoutes(api)
-		routes.BankRoutes(api)
-		routes.PaymentMethodsRoutes(api)
+		routes.BankRoutes(protected)
+		routes.PaymentMethodsRoutes(protected)
+		routes.UsersRoutes(protected)
 	}
 
 	SERVER_PORT := os.Getenv("SERVER_PORT")
