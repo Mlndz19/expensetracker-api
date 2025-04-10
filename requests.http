@@ -1,0 +1,88 @@
+### Hello world
+# @name HelloWorld
+GET http://localhost:8080/api
+
+### Get all users
+# @name GetAllUsers
+GET http://localhost:8080/api/user
+Authorization: ""
+
+### Get user by id
+# @name GetUserById
+GET http://localhost:8080/api/user/1
+Authorization: ""
+
+### Create new user
+# @name RegisterUser
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "cesar2@cesar.com",
+  "username": "cesaruser2",
+  "password": "ElChechal123"
+}
+
+### Update user by id
+# @name UpdateUser
+PUT http://localhost:8080/api/user/1
+Content-Type: application/json
+
+{
+  "email": "cesar.melendezp96.dev@gmail.com",
+  "username": "Mlndz19",
+  "password": "MyPwd1996",
+  "active": true
+}
+
+### Delete user by id
+# @name DeleteUser
+DELETE http://localhost:8080/api/user/1
+
+### Login
+# @name Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "cesar@cesar.com",
+  "password": "ElChechal123"
+}
+
+### Get All banks
+# @name GetAllBanks
+GET http://localhost:8080/api/bank
+
+### Get bank by Id
+# @name GetBankById
+GET http://localhost:8080/api/bank/1
+
+### Create Bank
+# @name CreateBank
+POST http://localhost:8080/api/bank
+Content-Type: application/json
+
+{
+  "name": "Santander"
+}
+
+### Update bank by id
+# @name UpdateBankById
+PUT http://localhost:8080/api/bank/1
+Content-Type: application/json
+
+{
+  "name": "Santander"
+}
+
+### Delete bank by id
+# @name DeleteBankById
+DELETE http://localhost:8080/api/bank/2
+
+### Get all payment methods
+# @name GetAllPaymentMethods
+GET http://localhost:8080/api/payment-methods
+
+### Get payment method by id
+# @name GetPaymentMethodById
+GET http://localhost:8080/api/payment-methods/1
