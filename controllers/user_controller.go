@@ -22,10 +22,15 @@ func GetAllUsers(c *gin.Context) {
 
 func GetUserById(c *gin.Context){
 	id := c.Param("id")
-	var user models.User
+	var user *models.User
 
 	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
 		return
 	}
 
