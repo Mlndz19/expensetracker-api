@@ -33,28 +33,31 @@ func LoginUser(c *gin.Context) {
 }
 
 func RegisterUser(c *gin.Context){
-	var newUSer models.User
+	var input dtos.RegisterUser
 
-	if err := c.ShouldBindJSON(&newUSer); err != nil {
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	hashedPassword, err := HashPassword(newUSer.Password)
+	hashedPassword, err := HashPassword(input.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	newUSer.Password = hashedPassword
+	var newUser models.User
+	newUser.Email = input.Email
+	newUser.Username = input.Username
+	newUser.Password = hashedPassword
 
-	if err := config.DB.Create(&newUSer).Error; err != nil {
+	if err := config.DB.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "User created correctly",
-		"user": newUSer,
+		"user": newUser,
 	})
 }
