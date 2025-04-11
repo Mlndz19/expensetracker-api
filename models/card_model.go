@@ -9,5 +9,5 @@ type Card struct {
 	BankID uint `json:"bank_id" binding:"required"`
 	Bank Bank `json:"bank" gorm:"foreignKey:BankID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 	UserID uint `json:"user_id" binding:"required"`
-	User User `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	User User `json:"-" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
