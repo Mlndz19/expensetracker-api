@@ -31,7 +31,6 @@ func GetBankById(c *gin.Context){
 		return
 	}
 
-
 	var bank models.Bank
 	if err := config.DB.First(&bank, id).Error; err != nil{
 		if err == gorm.ErrRecordNotFound {
