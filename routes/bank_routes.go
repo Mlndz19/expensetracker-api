@@ -7,7 +7,7 @@ import (
 )
 
 func BankRoutes(r *gin.RouterGroup) {
-	userGroup := r.Group("/bank")
+	userGroup := r.Group("/banks")
 	{
 		userGroup.GET("/", controllers.GetAllBanks)
 		userGroup.GET("/:id", controllers.GetBankById)
