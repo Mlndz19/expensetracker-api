@@ -14,8 +14,8 @@ type Transaction struct {
 	Amount float64 `json:"amount" binding:"required,gt=0" gorm:"not null"`
 	PaymentMethodID uint `json:"payment_method_id" binding:"required" gorm:"not null"`
 	PaymentMethod PaymentMethod `json:"payment_method" gorm:"foreignKey:PaymentMethodID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
-	CardID uint `json:"card_id"`
+	CardID *uint `json:"card_id" gorm:"default:null"`
 	Card Card `json:"card" gorm:"foreignKey:CardID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	UserID uint `json:"user_id" binding:"required" gorm:"not null"`
-	User User `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	User User `json:"-" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
 }
