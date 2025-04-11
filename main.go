@@ -33,6 +33,7 @@ func main(){
 		routes.BankRoutes(protected)
 		routes.PaymentMethodsRoutes(protected)
 		routes.UsersRoutes(protected)
+		routes.CardRoutes(protected)
 	}
 
 	SERVER_PORT := os.Getenv("SERVER_PORT")
