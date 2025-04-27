@@ -36,7 +36,7 @@ func ConnectDB() {
 }
 
 func MigrateDB(){
-	err := DB.AutoMigrate(&models.User{}, &models.Bank{}, models.PaymentMethod{}, models.Card{}, models.Transaction{})
+	err := DB.AutoMigrate(&models.User{}, &models.Bank{}, models.PaymentMethod{}, models.Card{}, models.Transaction{}, models.Category{})
 	if err != nil {
 		log.Fatal("❌ Error al migrar la tabla User: ", err.Error())
 	} else {
